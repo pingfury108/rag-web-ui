@@ -13,6 +13,15 @@ export class ApiError extends Error {
 export async function fetchApi(fullUrl: string, options: FetchOptions = {}) {
   const { data, headers: customHeaders = {}, ...restOptions } = options;
 
+  // Get base URL from current window location
+  let baseUrl = '';
+  if (typeof window !== 'undefined') {
+    baseUrl = window.location.origin;
+  }
+
+  // If the URL doesn't start with http/https, prepend the base URL
+  const url = fullUrl.startsWith('http') ? fullUrl : `${baseUrl}${fullUrl}`;
+
   // Get token from localStorage
   let token = '';
   if (typeof window !== 'undefined') {
@@ -48,7 +57,7 @@ export async function fetchApi(fullUrl: string, options: FetchOptions = {}) {
   }
 
   try {
-    const response = await fetch(fullUrl, config);
+    const response = await fetch(url, config);
 
     if (response.status === 401) {
       if (typeof window !== 'undefined') {
